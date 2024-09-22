@@ -8,15 +8,15 @@ Isaac Reaves
 **Project Objective:**
 Create a two player tic tac toe game played over a sever.
 
-Scope:
-Inclusions:
+#Scope:
+**Inclusions:**
 [List the specific tasks, features, or components that will be included in the project.]
-Exclusions:
+**Exclusions:**
 [List any tasks, features, or components that will not be included in the project.]
-Deliverables:
+**Deliverables:**
 [List the expected outputs or deliverables from the project, such as a working Python script, documentation, or presentations.]
-Timeline:
-Key Milestones:
+#Timeline:
+**Key Milestones:**
 [Outline the major milestones or checkpoints throughout the project, with estimated completion dates.]
 Task Breakdown:
 [Create a detailed breakdown of tasks, assigning estimated hours or days to each.]
