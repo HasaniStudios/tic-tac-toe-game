@@ -15,24 +15,31 @@ Create a two player tic tac toe game played over a sever.
 3. Every player will have an icon for if they are circles or crosses
 4. Every player will be able to click on a box for thier specific turn.
 **Exclusions:**
-1. 
+1. The game will not have a match making system.
 **Deliverables:**
-[List the expected outputs or deliverables from the project, such as a working Python script, documentation, or presentations.]
-#Timeline:
+1. Server code
+2. Client code
+# Timeline:
 **Key Milestones:**
-[Outline the major milestones or checkpoints throughout the project, with estimated completion dates.]
+1. Sprint 0: Form teams, Setup Tools, Submit SOW [Template] (Sept 08-Sept 22)
+2. Sprint 1: Socket Programming, TCP Client Server (Sept 22-Oct 06)
+3. Sprint 2:  Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
+4. Sprint 3:  Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
+5. Sprint 4:  Game play, Game State (Nov 03-Nov 17)
+6. Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
 **Task Breakdown:**
-[Create a detailed breakdown of tasks, assigning estimated hours or days to each.]
+1. 3 hours per week
 **Technical Requirements:**
 **Hardware:**
 1. Server located on first computer
 2. client located on second computer
 3. client located on third computer
 **Software:**
-[List the necessary software tools, programming languages (Python), libraries (socket, threading, etc.), and operating systems.]
+1. Windows
+2. Python
 **Assumptions:**
-[State any assumptions that are being made about the project, such as network connectivity or availability of resources.]
+1. Network connectivity will be over good qulaity
 **Roles and Responsibilities:**
-[Define the roles of team members, including project manager, developers, testers, etc., and their responsibilities.]
+1. In charge of all project
 **Communication Plan:**
-[Outline the communication channels and frequency for project updates, meetings, and decision-making.]
+1. Updated every week
