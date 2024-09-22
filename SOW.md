@@ -1,4 +1,4 @@
-Project
+# Project
 Project Title:
 [Insert Project Title]
 
