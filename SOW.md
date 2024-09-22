@@ -19,6 +19,7 @@ Create a two player tic tac toe game played over a sever.
 **Deliverables:**
 1. Server code
 2. Client code
+
 # Timeline:
 **Key Milestones:**
 1. Sprint 0: Form teams, Setup Tools, Submit SOW [Template] (Sept 08-Sept 22)
