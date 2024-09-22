@@ -1,12 +1,12 @@
 # Project
-Project Title:
-[Insert Project Title]
+**Project Title:**
+Tic Tac Toe Game
 
-Team:
-[Insert members of team]
+**Team:**
+Isaac Reaves
 
-Project Objective:
-[Briefly describe the goal of the project. What problem are you trying to solve or what functionality are you aiming to achieve?]
+**Project Objective:**
+Create a two player tic tac toe game played over a sever.
 
 Scope:
 Inclusions:
