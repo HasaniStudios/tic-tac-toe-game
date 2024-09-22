@@ -8,7 +8,7 @@ Isaac Reaves
 **Project Objective:**
 Create a two player tic tac toe game played over a sever.
 
-#Scope:
+# Scope:
 **Inclusions:**
 [List the specific tasks, features, or components that will be included in the project.]
 **Exclusions:**
