@@ -1,0 +1,51 @@
+Deliverables:
+
+Basic Server Setup:
+Create a server-side application that listens for incoming client connections on a specified port.
+Implement a mechanism to handle multiple client connections simultaneously.
+Log connection and disconnection events.
+Client-Side Connection:
+Develop a client-side application that can connect to the server.
+Implement error handling for failed connection attempts.
+Log connection and disconnection events.
+Simple Message Exchange:
+Establish a basic communication protocol between the server and clients.
+Implement functions to send and receive messages.
+Test the communication by sending simple messages back and forth.
+Error Handling:
+Implement basic error handling for network-related issues (e.g., connection timeouts, socket errors).
+Log error messages for debugging purposes.
+Testing and Debugging:
+Test the server's ability to handle multiple client connections.
+Verify that clients can connect to the server and exchange messages.
+Debug any issues related to network communication or socket operations.
+Update README
+Include requirements.txt file (only need one per git repository)
+This is done within a virtual python environment by running
+pip freeze > requirements.txt
+
+Deliverables:
+
+Basic Server Setup:
+Create a server-side application that listens for incoming client connections on a specified port.
+Implement a mechanism to handle multiple client connections simultaneously.
+Log connection and disconnection events.
+Client-Side Connection:
+Develop a client-side application that can connect to the server.
+Implement error handling for failed connection attempts.
+Log connection and disconnection events.
+Simple Message Exchange:
+Establish a basic communication protocol between the server and clients.
+Implement functions to send and receive messages.
+Test the communication by sending simple messages back and forth.
+Error Handling:
+Implement basic error handling for network-related issues (e.g., connection timeouts, socket errors).
+Log error messages for debugging purposes.
+Testing and Debugging:
+Test the server's ability to handle multiple client connections.
+Verify that clients can connect to the server and exchange messages.
+Debug any issues related to network communication or socket operations.
+Update README
+Include requirements.txt file (only need one per git repository)
+This is done within a virtual python environment by running
+pip freeze > requirements.txt
