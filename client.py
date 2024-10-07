@@ -2,15 +2,15 @@ import sys
 import socket
 import selectors
 import types
+import time
 
 sel = selectors.DefaultSelector()
 
-messages = [b"Message 1 from client.", b"Message 2 from client."]
+messages = [b"Update Server", b"Update Server", b"Update Server" b"Update Server"]
 
-def start_connection(host, port, num_conns):
-    connid = 1
+def start_connection(host, port, num_conns, playerID):
     server_addr = (host, port)
-    print("starting connection", server_addr)
+    print("Player", playerID, "statered connection to", server_addr)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(10)
     try:
@@ -20,9 +20,10 @@ def start_connection(host, port, num_conns):
         exit()
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
     data = types.SimpleNamespace(
-        msg_total=sum(len(m) for m in messages),
+        #msg_total=sum(len(m) for m in messages),
+        msg_total=300,
         recv_total=0,
-        connid=1,
+        connid=playerID,
         messages=list(messages),
         msg="This client is attempting to connect to the server",
         outb=b""
@@ -34,13 +35,10 @@ def service_connection(key, mask):
     data = key.data
     if mask & selectors.EVENT_READ:
         recv_data = sock.recv(1024)  # Should be ready to read
-        print(recv_data)
-        print(data.recv_total)
-        print(data.msg_total)
         if recv_data:
             print("received", repr(recv_data), "from connection")
             data.recv_total += len(recv_data)
-        if not recv_data or data.recv_total == data.msg_total:
+        if not recv_data or data.recv_total >= data.msg_total:
             print("closing connection", data.connid)
             sel.unregister(sock)
             sock.close()
@@ -53,19 +51,41 @@ def service_connection(key, mask):
             data.outb = data.outb[sent:]
 
 host = '127.0.0.1'  #using local address since I am unsure how this is being run
-port = 5050
+port = 5022
 num_conns = 10       
 
-start_connection(host, port, num_conns)
+def sendHeartBeat(key):
+    sock = key.fileobj
+    print("Player", playerID, "is sending heart beat message to server")
+    Heartb= bytes(playerID, encoding="utf-8") + b" - Heart Beat "
+    sent = sock.send(Heartb)
+
+playerID = input("What player number are you, 1 or 2?")
+
+start_connection(host, port, num_conns, playerID)
 
 try:
+    curTime = time.perf_counter()
+    updTime = time.perf_counter()
+    #print(time.perf_counter())
+    updateServer = False
     while True:
+        #print(time.perf_counter())
         events = sel.select(timeout=1)
-        if events:
+        if updateServer:
             for key, mask in events:
                 service_connection(key, mask)
+            updateServer = False
+        if time.perf_counter() - curTime >= 2:
+            for key, mask in events:
+                sendHeartBeat(key)
+            curTime = time.perf_counter()
         if not sel.get_map():
             break
+        if time.perf_counter() - updTime >= 5:
+            updateServer = True
+            updTime = time.perf_counter()
+
 except KeyboardInterrupt:
     print("caught keyboard interrupt, exiting")
 finally:

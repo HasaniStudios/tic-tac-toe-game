@@ -20,11 +20,11 @@ def service_connection(key, mask):
     if mask & selectors.EVENT_READ:
         recv_data = sock.recv(1024)
         if recv_data:
-            data.outb += recv_data
-        else:
-            print("closing connection to", data.addr)
-            sel.unregister(sock)
-            sock.close()
+            data.outb = recv_data
+        #else:
+        #    print("closing connection to", data.addr)
+        #    sel.unregister(sock)
+        #    sock.close()
     if mask & selectors.EVENT_WRITE:
         if data.outb:
             print("echoing", repr(data.outb), "to", data.addr)
@@ -32,7 +32,7 @@ def service_connection(key, mask):
             data.outb = data.outb[sent:]
 
 host = '127.0.0.1'
-port = 5050
+port = 5022
 
 lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 lsock.bind((host, port))
