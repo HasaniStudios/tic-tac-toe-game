@@ -7,7 +7,7 @@ sel = selectors.DefaultSelector()
 Players = []
 
 def accept_wrapper(sock):
-    conn, addr = sock.accept()  
+    conn, addr = sock.accept()
     print("accepted connection from", addr, "this user will be considered player 1")
     conn.settimeout(10)
     data = types.SimpleNamespace(addr=addr, inb=b"", outb=b"")
@@ -31,8 +31,8 @@ def service_connection(key, mask):
             sent = sock.send(data.outb)  # Should be ready to write
             data.outb = data.outb[sent:]
 
-host = '127.0.0.1'
-port = 5022
+host = '0.0.0.0'
+port = 5023
 
 lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 lsock.bind((host, port))
