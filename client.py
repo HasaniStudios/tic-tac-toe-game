@@ -9,21 +9,29 @@ import logging
 sel = selectors.DefaultSelector()
 
 messages = []
+gameBoard = [[' ',' ',' '], [' ',' ',' '], [' ',' ',' ']]
 
-def start_connection(host, port, playerID):
+isTurn = 0
+
+#recv_data = ''
+
+def start_connection(host, port):
     server_addr = (host, port)
-    logger.info("Player" + playerID + "statered connection to" + str(server_addr))
+    #logger.info("Started connection to" + str(server_addr))
+    #print("Started connection to" + str(server_addr))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(10)
     try:
         sock.connect(server_addr)
+        logger.info("Started connection to " + str(server_addr))
+        print("Started connection to " + str(server_addr))
     except:
-        logger.info("This client was unable to connect to " + server_addr)
+        logger.info("This client was unable to connect to " + str(server_addr[0]) + str(server_addr[1]))
+        print("This client was unable to connect to " + str(server_addr[0]) + str(server_addr[1]))
         exit()
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
     sockData = types.SimpleNamespace(
         type='sock',
-        connid=playerID,
         messages=list(messages),
         msg="This client is attempting to connect to the server",
         outb=b""
@@ -39,14 +47,16 @@ def service_connection(key, mask):
     data = key.data
     if mask & selectors.EVENT_READ:
         if data.type == 'input':
-            for line in sys.stdin:
-                print(line)
+            service_user_input()
             #print('log: hello', file=sys.stdout)
             sys.stdout.flush()
         elif type(sock) is socket.socket:
-            recv_data = sock.recv(1024)  # Should be ready to read
-            if recv_data:
-                logger.info("received" + repr(recv_data) + "from connection")
+            proccess_message(sock)
+            #recv_data = sock.recv(1024)  Should be ready to read
+            #if recv_data:
+                #proccess_message(recv_data)
+                #logger.info("received" + repr(recv_data) + "from connection")
+                #print("received" + repr(recv_data) + "from connection")
                 #pretty sure I don't need this line
 	        #data.recv_total += len(recv_data)
         '''
@@ -74,28 +84,59 @@ port = 5022
 # - Update: 3
 # - Disconnection: 4
 
+def update_UI(turnOrder):
+    global isTurn
+    print('_________________________________')
+    print('Current  Format')
+    print(' ' + gameBoard[0][0] + '|' + gameBoard[0][1] + '|' + gameBoard[0][2] + '   ' + '1|2|3')
+    print(' ' + '-+-+-' + '   ' + '-+-+-')
+    print(' ' +gameBoard[1][0] + '|' + gameBoard[1][1] + '|' + gameBoard[1][2] + '   ' + '4|5|6')
+    print(' ' + '-+-+-' + '   ' + '-+-+-')
+    print(' ' + gameBoard[2][0] + '|' + gameBoard[2][1] + '|' + gameBoard[2][2] + '   ' + '7|8|9')
+    print('_________________________________')
+    if isTurn == 0:
+        print("It is opponents turn (B=Quit)")
+    elif isTurn == 1:
+        print("It is your turn turn, input 0-9 (0-9=Turn, B=Quit)")
+
+def update_gameBoard(data):
+    print("gameBoard")
+
+def proccess_message(sock):
+    header = sock.recv(2)
+    msg_len = int.from_bytes(header[0:2], byteorder="big")
+    message = sock.recv(msg_len)
+    decodedmess = message.decode('utf-8').rsplit(" - ")
+    print(decodedmess)
+    if decodedmess[0] == '0':
+        #print("heart beat recived")
+        pass
+    elif decodedmess[0] == '1':
+        print(decodedmess[1])
+    elif decodedmess[0] == '2':
+        global isTurn 
+        isTurn = int(decodedmess[1])
+        print(isTurn)
+        update_gameBoard(decodedmess[2])
+        update_UI(str(decodedmess[1]))
+
 def sendHeartBeat():
     #logger.info(
-    Heartb= bytes(playerID, encoding="utf-8") + b" - Heart Beat "
+    Heartb= b"0 - Heart Beat"
     #logger(
     #sent = sock.send(Heartb)
     messages.append(Heartb)
     #selectors.EVENT_WRITE = True
 
 def service_user_input():
-    line = arg1.read()
-    if line == 'quit\n':
-        quit()
+    line = sys.stdin.readline()
+    print(line)
+    if line == 'A':
+        print("Parsed A")
+    elif line == 'B':
+        print("Parsed B")
     else:
         print('User input: {}'.format(line))
-
-port = input("What port are you trying to connect on? (Default:5022)")
-
-host = input("What address are you trying to connect on? (Default: 0.0.0.0)")
-
-playerID = input("What player number are you, 1 or 2?")
-
-sys.stdout.flush()
 
 #set up logger
 logger = logging.getLogger(__name__)
@@ -103,29 +144,55 @@ os.remove('client_TicTacToe.log')
 logging.basicConfig(filename='client_TicTacToe.log', level=logging.INFO)
 print('Created client_TicTacToe.log')
 
-print("Welcome to tick-tac-toe, would you like to (A=update, B=Quit)?")
+def main():
 
-start_connection(host, int(port), playerID)
+    if len(sys.argv[1:]) != 4:
+        print("Please run script with arguments for ip address and port")
+        print("EX: python3 -i 0.0.0.0 -p 5022")
+        exit()
+    elif not ('-p' in sys.argv[1:]) or not ('-i' in sys.argv[1:]):
+        print("Please run script with arguments for ip address and port")
+        print("EX: python3 -i 0.0.0.0 -p 5022")
+        exit()
+    else:
+        host = sys.argv[sys.argv[1:].index('-i') + 2]
+        port = sys.argv[sys.argv[1:].index('-p') + 2]
 
-try:
-    curTime = time.perf_counter()
-    updTime = time.perf_counter()
-    #print(time.perf_counter())
-    updateServer = False
-    while True:
+    #port = input("What port are you trying to connect on? (Default:5022)")
+
+    #host = input("What address are you trying to connect on? (Default: 0.0.0.0)")
+
+    #playerID = input("What player number are you, 1 or 2?")
+
+    sys.stdout.flush()
+
+    #print("Welcome to tick-tac-toe")
+
+    start_connection(host, int(port))
+
+    #main loop
+    try:
+        curTime = time.perf_counter()
+        updTime = time.perf_counter()
         #print(time.perf_counter())
-        events = sel.select(timeout=1)
-        if events:
-            for key, mask in events:
-                service_connection(key, mask)
-            updateServer = False
-        if time.perf_counter() - curTime >= 2:
-            sendHeartBeat()
-            curTime = time.perf_counter()
-        if not sel.get_map():
-            break
+        updateServer = False
+        while True:
+            #print(time.perf_counter())
+            events = sel.select(timeout=1)
+            if events:
+                for key, mask in events:
+                    service_connection(key, mask)
+                updateServer = False
+            if time.perf_counter() - curTime >= 2:
+                sendHeartBeat()
+                curTime = time.perf_counter()
+            if not sel.get_map():
+                break
+    except KeyboardInterrupt:
+        print("caught keyboard interrupt, exiting")
+    finally:
+        sel.close()
 
-except KeyboardInterrupt:
-    print("caught keyboard interrupt, exiting")
-finally:
-    sel.close()
+#when script is run directly: call main
+if __name__ == '__main__':
+    main()
