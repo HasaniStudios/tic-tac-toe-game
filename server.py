@@ -88,7 +88,7 @@ def process_message(sock):
     msg_len = int.from_bytes(header[0:2], byteorder="big")
     message = sock.recv(msg_len)
     decodedmess = message.decode('utf-8').rsplit(" - ")
-    print(decodedmess)
+    #print(decodedmess)
     if decodedmess[0] == '5':
         process_turnOrder(decodedmess[1], sock)
     elif decodedmess[0] == '6':
@@ -108,16 +108,23 @@ def process_message(sock):
             queue_update(playerSock[0], "0")
             queue_update(playerSock[1], "1")
     elif decodedmess[0] == '9':
+        print('hello')
         if sock == playerSock[0]:
             queue_announcment(playerSock[1], "Opponent disconnected from game")
             queue_announcment(playerSock[1], "You are considered player X.")
             queue_announcment(playerSock[1], "Waiting for second player...")
+            wipeGameBoard()
+            sel.unregister(playerSock[0])
+            playerSock[0].close()
             playerSock.pop(0)
             print(playerSock)
         if sock == playerSock[1]:  
             queue_announcment(playerSock[0], "Opponent disconnected from game")
             queue_announcment(playerSock[0], "You are considered player X.")
             queue_announcment(playerSock[0], "Waiting for second player...")
+            wipeGameBoard()
+            sel.unregister(playerSock[1])
+            playerSock[1].close()
             playerSock.pop(1)
             print(playerSock)
         
@@ -211,7 +218,7 @@ def process_turnOrder(turnNumber, socket):
 
 #need to make this take in arguments
 host = '0.0.0.0'
-port = 5022
+port = 5023
 
 lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 lsock.bind((host, port))

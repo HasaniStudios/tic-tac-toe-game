@@ -168,7 +168,7 @@ def queue_gameRestart():
     message = struct.pack(">H", len(encode)) + encode
     messages.append(message)
 
-def queue_disconnection():
+def send_disconnection(sock):
     encode = b"9 - Disconnection"
     message = struct.pack(">H", len(encode)) + encode
     messages.append(message)
@@ -187,10 +187,10 @@ def service_user_input(sock):
             queue_gameRestart()
         elif line[0] == 'B':
             print("Closing connection") #close connection
-
-            sel.unregister(sock)
-            sock.close()
-            quit()
+            send_disconnection(sock)
+            #sel.unregister(sock)
+            #sock.close()
+            #quit()
         else: #should probably check that 
             if isTurn == 1 and line[0] != 'A':
                 print('User input: {}'.format(line))
