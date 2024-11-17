@@ -5,11 +5,14 @@ import types
 import time
 import os
 import logging
+import re
+import struct
 
 sel = selectors.DefaultSelector()
 
 messages = []
 gameBoard = [[' ',' ',' '], [' ',' ',' '], [' ',' ',' ']]
+gameEnd = 0
 
 isTurn = 0
 
@@ -47,7 +50,7 @@ def service_connection(key, mask):
     data = key.data
     if mask & selectors.EVENT_READ:
         if data.type == 'input':
-            service_user_input()
+            service_user_input(sock)
             #print('log: hello', file=sys.stdout)
             sys.stdout.flush()
         elif type(sock) is socket.socket:
@@ -63,7 +66,7 @@ def service_connection(key, mask):
         if not recv_data or data.recv_total >= data.msg_total:
             print("closing connection", data.connid)
             sel.unregister(sock)
-           sock.close()
+            sock.close()
         '''
     if mask & selectors.EVENT_WRITE:
         if not data.outb and messages:
@@ -97,17 +100,28 @@ def update_UI(turnOrder):
     if isTurn == 0:
         print("It is opponents turn (B=Quit)")
     elif isTurn == 1:
-        print("It is your turn turn, input 0-9 (0-9=Turn, B=Quit)")
+        print("It is your turn, input 1-9 (1-9=Turn, B=Quit)")
 
 def update_gameBoard(data):
-    print("gameBoard")
+    newdata = data.rsplit("[")
+    #print(newdata)
+    #able to do this cause it's small
+    gameBoard[0][0] = newdata[1]
+    gameBoard[0][1] = newdata[2]
+    gameBoard[0][2] = newdata[3]
+    gameBoard[1][0] = newdata[4]
+    gameBoard[1][1] = newdata[5]
+    gameBoard[1][2] = newdata[6]
+    gameBoard[2][0] = newdata[7]
+    gameBoard[2][1] = newdata[8]
+    gameBoard[2][2] = newdata[9]
 
 def proccess_message(sock):
     header = sock.recv(2)
     msg_len = int.from_bytes(header[0:2], byteorder="big")
     message = sock.recv(msg_len)
     decodedmess = message.decode('utf-8').rsplit(" - ")
-    print(decodedmess)
+    #print(decodedmess)
     if decodedmess[0] == '0':
         #print("heart beat recived")
         pass
@@ -116,9 +130,25 @@ def proccess_message(sock):
     elif decodedmess[0] == '2':
         global isTurn 
         isTurn = int(decodedmess[1])
-        print(isTurn)
+        #print(isTurn)
         update_gameBoard(decodedmess[2])
         update_UI(str(decodedmess[1]))
+    elif decodedmess[0] == '8':
+        global gameEnd
+        gameEnd = 1
+        process_winner(decodedmess[1])
+
+def process_winner(outcome):
+    if outcome == '1':
+        print('_________________________________')
+        print('You have won!')
+        print('_________________________________')
+        print("Would you like to restart or quit? (A=Restart, B=Quit)")
+    elif outcome == '0':
+        print('_________________________________')
+        print('Sorry, you have lost...')
+        print('_________________________________')
+        print("Would you like to restart or quit? (A=Restart, B=Quit)")
 
 def sendHeartBeat():
     #logger.info(
@@ -128,15 +158,47 @@ def sendHeartBeat():
     messages.append(Heartb)
     #selectors.EVENT_WRITE = True
 
-def service_user_input():
+def queue_turn(turn):
+    encode = b"5 - " + turn.encode('utf-8')
+    message = struct.pack(">H", len(encode)) + encode
+    messages.append(message)
+
+def queue_gameRestart():
+    encode = b"6 - Game Restart"
+    message = struct.pack(">H", len(encode)) + encode
+    messages.append(message)
+
+def queue_disconnection():
+    encode = b"9 - Disconnection"
+    message = struct.pack(">H", len(encode)) + encode
+    messages.append(message)
+
+def service_user_input(sock):
     line = sys.stdin.readline()
-    print(line)
-    if line == 'A':
-        print("Parsed A")
-    elif line == 'B':
-        print("Parsed B")
+    global isTurn
+    #print(line)
+    #print(len(line))
+    regEx = re.search("\A[1-9]\Z|\A[A-B]\Z", line[0])
+    #print(re.search)
+    global gameEnd
+    if len(line) <= 2 and regEx:
+        if line[0] == 'A' and gameEnd == 1:
+            print("Restarting Game")
+            queue_gameRestart()
+        elif line[0] == 'B':
+            print("Closing connection") #close connection
+
+            sel.unregister(sock)
+            sock.close()
+            quit()
+        else: #should probably check that 
+            if isTurn == 1 and line[0] != 'A':
+                print('User input: {}'.format(line))
+                queue_turn(line[0])
+            else:
+                print('Wait for your opponent to take their turn...')
     else:
-        print('User input: {}'.format(line))
+        print("Invalid Input") #should make this more descriptive
 
 #set up logger
 logger = logging.getLogger(__name__)
@@ -184,7 +246,8 @@ def main():
                     service_connection(key, mask)
                 updateServer = False
             if time.perf_counter() - curTime >= 2:
-                sendHeartBeat()
+                #Heart beat system is most likely not needed rn
+                #sendHeartBeat()
                 curTime = time.perf_counter()
             if not sel.get_map():
                 break
