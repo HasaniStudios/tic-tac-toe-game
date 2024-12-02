@@ -10,6 +10,7 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets.
 **Technologies used:**
 * Python
 * Sockets
+* Selector
 
 **Additional resources:**
 * [Link to Python documentation]
