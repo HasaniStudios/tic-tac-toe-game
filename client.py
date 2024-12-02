@@ -16,6 +16,8 @@ gameEnd = 0
 
 isTurn = 0
 
+curSock = None
+
 #recv_data = ''
 
 def start_connection(host, port):
@@ -23,6 +25,8 @@ def start_connection(host, port):
     #logger.info("Started connection to" + str(server_addr))
     #print("Started connection to" + str(server_addr))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    global curSock
+    curSock = sock
     sock.settimeout(10)
     try:
         sock.connect(server_addr)
@@ -149,6 +153,11 @@ def process_winner(outcome):
         print('Sorry, you have lost...')
         print('_________________________________')
         print("Would you like to restart or quit? (A=Restart, B=Quit)")
+    elif outcome == 'DRAW':
+        print('_________________________________')
+        print('It is a draw!')
+        print('_________________________________')
+        print("Would you like to restart or quit? (A=Restart, B=Quit)")
 
 def sendHeartBeat():
     #logger.info(
@@ -171,7 +180,7 @@ def queue_gameRestart():
 def send_disconnection(sock):
     encode = b"9 - Disconnection"
     message = struct.pack(">H", len(encode)) + encode
-    messages.append(message)
+    curSock.send(message)
 
 def service_user_input(sock):
     line = sys.stdin.readline()
@@ -188,9 +197,11 @@ def service_user_input(sock):
         elif line[0] == 'B':
             print("Closing connection") #close connection
             send_disconnection(sock)
+            sel.close()
+            curSock.close()
             #sel.unregister(sock)
             #sock.close()
-            #quit()
+            quit()
         else: #should probably check that 
             if isTurn == 1 and line[0] != 'A':
                 print('User input: {}'.format(line))
@@ -252,9 +263,15 @@ def main():
             if not sel.get_map():
                 break
     except KeyboardInterrupt:
+        global curSock
+        send_disconnection(curSock)
         print("caught keyboard interrupt, exiting")
+        print("Closing connection") #close connection
+        sel.close()
+        curSock.close()
     finally:
         sel.close()
+        curSock.close()
 
 #when script is run directly: call main
 if __name__ == '__main__':

@@ -118,7 +118,7 @@ def process_message(sock):
             playerSock[0].close()
             playerSock.pop(0)
             print(playerSock)
-        if sock == playerSock[1]:  
+        elif sock == playerSock[1]:  
             queue_announcment(playerSock[0], "Opponent disconnected from game")
             queue_announcment(playerSock[0], "You are considered player X.")
             queue_announcment(playerSock[0], "Waiting for second player...")
@@ -168,8 +168,19 @@ def win_condtion():
             return character
         elif gameBoard[0][2] == character and gameBoard[2][0] == character:
             return character
-        
-    return ' '
+
+    emptyNumber = 0    
+    for i in range(len(gameBoard)):
+        for j in range(len(gameBoard[i])):
+            if (gameBoard[i][j] == ' '):
+                emptyNumber += 1
+
+    #checks to see if all nine spaces have been filled
+    if emptyNumber == 0:
+        return '-'
+    else:
+        return ' '
+    
     #Attempt at making a complex algorithm to check for winning condition
     '''
     for x in range(3):
@@ -188,11 +199,19 @@ def queue_winner(winner):
     encode2 = b"8 - 0"
     message2 = struct.pack(">H", len(encode2)) + encode2
     if winner == 'X':
+        #if the win condition is calculated as an X win
         messages.append((playerSock[0], message1))
         messages.append((playerSock[1], message2))
     elif winner == 'O':
+        #if the win condition is calculated as a O win
         messages.append((playerSock[1], message1))
         messages.append((playerSock[0], message2))
+    elif winner == '-':
+        #if the win condition is calculated as a draw
+        encode3 = b"8 - DRAW"
+        message3 = struct.pack(">H", len(encode3)) + encode3
+        messages.append((playerSock[0], message3))
+        messages.append((playerSock[1], message3))
 
 def process_turnOrder(turnNumber, socket):
     global turnOrder
@@ -217,25 +236,46 @@ def process_turnOrder(turnNumber, socket):
             queue_winner(winner)
 
 #need to make this take in arguments
-host = '0.0.0.0'
-port = 5023
 
-lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-lsock.bind((host, port))
-lsock.listen()
-print("This server is listening for players to connect", (host, port))
-lsock.settimeout(10)
-sel.register(lsock, selectors.EVENT_READ, data=None)
+def main():
+    host = '0.0.0.0'
+    port = 5022
 
-try:
-    while True:
-        events = sel.select(timeout=None)
-        for key, mask in events:
-            if key.data is None:
-                accept_wrapper(key.fileobj)
-            else:
-                service_connection(key, mask)
-except KeyboardInterrupt:
-    print("caught keyboard interrupt, exiting")
-finally:
-    sel.close()
+    if len(sys.argv[1:]) != 4:
+        print("Please run script with arguments for ip address and port")
+        print("EX: python3 server.py -i 0.0.0.0 -p 5022")
+        exit()
+    elif not ('-p' in sys.argv[1:]) or not ('-i' in sys.argv[1:]):
+        print("Please run script with arguments for ip address and port")
+        print("EX: python3 server.py -i 0.0.0.0 -p 5022")
+        exit()
+    else:
+        host = sys.argv[sys.argv[1:].index('-i') + 2]
+        port = sys.argv[sys.argv[1:].index('-p') + 2]
+
+    lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    lsock.bind((host, int(port)))
+    lsock.listen()
+    print("This server is listening for players to connect", (host, port))
+    lsock.settimeout(10)
+    sel.register(lsock, selectors.EVENT_READ, data=None)
+
+    try:
+        while True:
+            events = sel.select(timeout=None)
+            for key, mask in events:
+                if key.data is None:
+                    accept_wrapper(key.fileobj)
+                else:
+                    service_connection(key, mask)
+    except KeyboardInterrupt:
+        print("caught keyboard interrupt, exiting")
+        sel.close()
+        lsock.close()
+    finally:
+        sel.close()
+        lsock.close()
+
+#when script is run directly: call main
+if __name__ == '__main__':
+    main()
