@@ -7,6 +7,7 @@ import os
 import logging
 import re
 import struct
+import time
 
 sel = selectors.DefaultSelector()
 
@@ -79,11 +80,6 @@ def service_connection(key, mask):
             logger.info("sending" + repr(data.outb) + "to connection to server")
             sent = sock.send(data.outb)  # Should be ready to write
             data.outb = data.outb[sent:]
-
-host = '127.0.0.1'  #using local address since I am unsure how this is being run
-host = '0.0.0.0'
-port = 5022
-#num_conns = 10
 
 #4 types of message will be sent by client including
 # - HeartBeat: 1
@@ -182,13 +178,41 @@ def send_disconnection(sock):
     message = struct.pack(">H", len(encode)) + encode
     curSock.send(message)
 
+def validInputCheck(turn):
+    if turn == '1':
+        if gameBoard[0][0] != ' ':
+            return False
+    elif turn == '2':
+        if gameBoard[0][1] != ' ':
+            return False
+    elif turn == '3':
+        if gameBoard[0][2] != ' ':
+            return False
+    elif turn == '4':
+        if gameBoard[1][0] != ' ':
+            return False
+    elif turn == '5':
+        if gameBoard[1][1] != ' ':
+            return False
+    elif turn == '6':
+        if gameBoard[1][2] != ' ':
+            return False
+    elif turn == '7':
+        if gameBoard[2][0] != ' ':
+            return False
+    elif turn == '8':
+        if gameBoard[2][1] != ' ':
+            return False
+    elif turn == '9':
+        if gameBoard[2][2] != ' ':
+            return False
+        
+    return True
+
 def service_user_input(sock):
     line = sys.stdin.readline()
     global isTurn
-    #print(line)
-    #print(len(line))
     regEx = re.search("\A[1-9]\Z|\A[A-B]\Z", line[0])
-    #print(re.search)
     global gameEnd
     if len(line) <= 2 and regEx:
         if line[0] == 'A' and gameEnd == 1:
@@ -205,17 +229,23 @@ def service_user_input(sock):
         else: #should probably check that 
             if isTurn == 1 and line[0] != 'A':
                 print('User input: {}'.format(line))
-                queue_turn(line[0])
+                if validInputCheck(line[0]): 
+                    queue_turn(line[0])
+                else:
+                    print("Invalid Input, choose a blank space")
             else:
                 print('Wait for your opponent to take their turn...')
     else:
         print("Invalid Input") #should make this more descriptive
 
+if not os.path.isdir('log'):
+    os.mkdir('log')
+
 #set up logger
 logger = logging.getLogger(__name__)
-os.remove('client_TicTacToe.log')
-logging.basicConfig(filename='client_TicTacToe.log', level=logging.INFO)
-print('Created client_TicTacToe.log')
+logFilename = "./log/client_TicTacToeLog(" + time.asctime(time.gmtime()) + ").log"
+logging.basicConfig(filename=logFilename, level=logging.INFO)
+print('Created ' + logFilename)
 
 def main():
 
@@ -231,41 +261,24 @@ def main():
         host = sys.argv[sys.argv[1:].index('-i') + 2]
         port = sys.argv[sys.argv[1:].index('-p') + 2]
 
-    #port = input("What port are you trying to connect on? (Default:5022)")
-
-    #host = input("What address are you trying to connect on? (Default: 0.0.0.0)")
-
-    #playerID = input("What player number are you, 1 or 2?")
-
     sys.stdout.flush()
-
-    #print("Welcome to tick-tac-toe")
 
     start_connection(host, int(port))
 
     #main loop
     try:
-        curTime = time.perf_counter()
-        updTime = time.perf_counter()
-        #print(time.perf_counter())
-        updateServer = False
         while True:
             #print(time.perf_counter())
             events = sel.select(timeout=1)
             if events:
                 for key, mask in events:
                     service_connection(key, mask)
-                updateServer = False
-            if time.perf_counter() - curTime >= 2:
-                #Heart beat system is most likely not needed rn
-                #sendHeartBeat()
-                curTime = time.perf_counter()
             if not sel.get_map():
                 break
     except KeyboardInterrupt:
         global curSock
+        print("Caught keyboard interrupt, exiting")
         send_disconnection(curSock)
-        print("caught keyboard interrupt, exiting")
         print("Closing connection") #close connection
         sel.close()
         curSock.close()

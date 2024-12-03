@@ -32,8 +32,6 @@ def accept_wrapper(sock):
         queue_announcment(playerSock[0], "Second player has connected.")
         global turnOrder
         turnOrder = random.randint(1, 2)
-        print(turnOrder)
-        print("test: " + str(turnOrder))
         if turnOrder == 1:
             queue_update(playerSock[0], "1")
             queue_update(playerSock[1], "0")
@@ -46,19 +44,11 @@ def service_connection(key, mask):
     data = key.data
     if mask & selectors.EVENT_READ:
         process_message(sock)
-        #recv_data = sock.recv(1024)
-        #if recv_data:
-        #messages.append((sock, recv_data))
-        #data.outb = recv_data
-        #else:
-        #    print("closing connection to", data.addr)
-        #    sel.unregister(sock)
-        #    sock.close()
     if mask & selectors.EVENT_WRITE:
         if not data.outb and messages:
             data.outb = messages.pop(0)
         if data.outb:
-            print("echoing", repr(data.outb[1]), "to", data.addr)
+            print("sent", repr(data.outb[1]), "to", data.addr)
             sent = data.outb[0].send(data.outb[1])  # Should be ready to write
             data.outb = ''
 
@@ -180,17 +170,6 @@ def win_condtion():
         return '-'
     else:
         return ' '
-    
-    #Attempt at making a complex algorithm to check for winning condition
-    '''
-    for x in range(3):
-        for y in range(3):
-            if gameBoard[x][y] == 'X' or gameBoard[x][y] == 'O':
-                    increment +=1
-                    character = gameBoard[x][y]
-                    for a in range(x, x+2):
-                        for b in range(y+1, y+2):
-    '''
 
 def queue_winner(winner):
     global playerSock
