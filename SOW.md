@@ -1,9 +1,9 @@
 # Project
 **Project Title:**
-Tic Tac Toe Game
+Isaac Reaves Tic Tac Toe Game
 
 **Team:**
-Isaac Reaves
+Just Isaac
 
 **Project Objective:**
 Create a two player tic tac toe game played over a sever.
@@ -11,9 +11,11 @@ Create a two player tic tac toe game played over a sever.
 # Scope:
 **Inclusions:**
 1. The game will include an indicator to which clients turn it is.
-2. The game will include a brief tutorial
+2. The game will include directions to play the game.
 3. Every player will have an icon for if they are circles or crosses
-4. Every player will be able to click on a box for thier specific turn.
+  * A command-line output is instead how the client knows if they are O or X's.
+5. Every player will be able to click on a box for thier specific turn.
+  * Player's instead don't click on box, but enter 1-9.
 
 **Exclusions:**
 1. The game will not have a match making system.
@@ -26,9 +28,9 @@ Create a two player tic tac toe game played over a sever.
 **Key Milestones:**
 1. Sprint 0: Form teams, Setup Tools, Submit SOW [Template] (Sept 08-Sept 22)
 2. Sprint 1: Socket Programming, TCP Client Server (Sept 22-Oct 06)
-3. Sprint 2:  Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
-4. Sprint 3:  Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
-5. Sprint 4:  Game play, Game State (Nov 03-Nov 17)
+3. Sprint 2: Develop Game Message Protocol, Manage Client connections (Oct 06-Oct 20)
+4. Sprint 3: Multi-player functionality, Synchronize state across clients. (Oct 20-Nov 03)
+5. Sprint 4: Game play, Game State (Nov 03-Nov 17)
 6. Sprint 5: Implement Error Handling and Testing (Nov 17-Dec 6)
    
 **Task Breakdown:**
