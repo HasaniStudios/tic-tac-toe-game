@@ -1,6 +1,6 @@
-# Isacc Reaves Tic-Tac-Toe Game 
+# Isaac Reaves Tic-Tac-Toe Game 
 
-This is a simple Tic-Tac-Toe game implemented using Python and sockets.
+This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac Reaves.
 
 **How to play:**
 1. **Start the server:** Run the `server.py` script with '-p PORT' arguments.
