@@ -58,6 +58,16 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
   * sends the result of the game to the client
   
 **Client-side Messages:**
+* ID:5 - turn
+  * sends turn made to server.
+  * turns are from 1-9 based off the tic tac toe gameboard. 
+* ID:6 - restart
+  * sends a message requesting restart after a conclusion of a game.
+  * this allows server to wipe game and tell other client that the game is restarting.
+* ID:9 - disconnection
+  * sends a message telling the client is disconnecting
+  * this allows the server to free resources.
+  * It is executed after a keyboard interrupt and when entering B.
 
 **Files:**
 * server.py
