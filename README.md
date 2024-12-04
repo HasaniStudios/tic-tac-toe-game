@@ -4,12 +4,22 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets.
 
 **How to play:**
 1. **Start the server:** Run the `server.py` script with '-p PORT' arguments.
-2. **Connect clients:** Run the `client.py` script on two different machines or terminals with '-i SERVER_IP/DNS -p PORT' arguments.
-3. **Play the game:** Players take turns entering their moves. The first player to get three in a row wins!
-  *Game will prompt you with the allowed command line inputs
+    * EX: > python3 server.py -p 5023
+    * default server address is 0.0.0.0
+3. **Connect clients:** Run the `client.py` script on two different machines or terminals with '-i SERVER_IP/DNS -p PORT' arguments.
+    * EX: > python3 client.py -i 0.0.0.0 -p 5023
+5. **Play the game:** Players take turns entering their moves. The first player to get three in a row wins!
+    * Game will prompt you with the allowed command line inputs
 
 **Functionality**
-
+* server.py
+  * Able to accept up to two connections
+    * Correcly drops connection greater than 2
+  * 
+* Client.py
+  * Able to accept up to two connections
+    * Correcly drops connection greater than 2
+  * 
 
 **Files:**
 * server.py
