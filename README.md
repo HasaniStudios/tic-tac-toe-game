@@ -54,5 +54,4 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
 * Selector
 
 **Additional resources:**
-* [Link to Python documentation]
-* [Link to sockets tutorial]
+* [https://docs.python.org/3/]
