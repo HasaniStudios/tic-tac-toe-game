@@ -20,8 +20,16 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
     * Able to detect a draw condition.
   * Announcment
     * Can queue an announcment to clients.
+  * Parses   
   * Parses Turn
-    * Recieves turn from player and sends the correct update to each player.       
+    * Recieves turn from player and sends the correct update to each player.
+  * Maintains list of clients
+  * Beginning trun management
+    * server determines who will take the first turn randomly  
+  * Manages disconnections
+    * Removes player from game data
+    * sends an announcmnet to other player
+    * If a player is still connected they become player X and wait for another player      
 * Client.py
   * Able to accept up to two connections
     * Correcly drops connection greater than 2.
@@ -32,6 +40,8 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
     * Correctly only allows user to pick between 0-9 inputs on their turn.
     * Correctly allows player to enter B to quit game.
     * Correctly allows player to enter A to restart game only after a game has been player.
+  * Turn based gameplay
+    * Client is able to determine if it is their turn and allows them to make a move.
   * Win Condition
     * Displays correct win or lose condition
 
