@@ -16,6 +16,7 @@ turnOrder = 0
 
 gameBoard = [[' ',' ',' '], [' ',' ',' '], [' ',' ',' ']]
 
+#accepts incoming connection requests
 def accept_wrapper(sock):
     conn, addr = sock.accept()
     print("accepted connection from", addr, "this user will be considered player 1")
@@ -39,6 +40,7 @@ def accept_wrapper(sock):
             queue_update(playerSock[0], "0")
             queue_update(playerSock[1], "1")
 
+#services connection by either reading or writing data from clients
 def service_connection(key, mask):
     sock = key.fileobj
     data = key.data
@@ -52,12 +54,13 @@ def service_connection(key, mask):
             sent = data.outb[0].send(data.outb[1])  # Should be ready to write
             data.outb = ''
 
-#queues an announcment to given  
+#queues an announcment to given client
 def queue_announcment(sock, text):
     encode = b"1 - " + text.encode('utf-8')
     message = struct.pack(">H", len(encode)) + encode
     messages.append((sock, message))
 
+#Updates client Board with new data
 def queue_update(sock, turn):
     encode = b"2 - " + turn.encode('utf-8') + b" - "
     gameBoardData = '[' + str(gameBoard[0][0]) + '[' + str(gameBoard[0][1]) + '[' + str(gameBoard[0][2])
@@ -67,25 +70,25 @@ def queue_update(sock, turn):
     message = struct.pack(">H", len(encode)) + encode
     messages.append((sock, message))
 
+#wipes serverside board for next game
 def wipeGameBoard():
     global gameBoard
     for x in range(3):
         for y in range(3):
             gameBoard[x][y] = ' '
 
+#process different messages recieved by the clients
 def process_message(sock):
     header = sock.recv(2)
     msg_len = int.from_bytes(header[0:2], byteorder="big")
     message = sock.recv(msg_len)
     decodedmess = message.decode('utf-8').rsplit(" - ")
-    #print(decodedmess)
     if decodedmess[0] == '5':
         process_turnOrder(decodedmess[1], sock)
     elif decodedmess[0] == '6':
         wipeGameBoard()
         global turnOrder
         turnOrder = random.randint(1, 2)
-        #print(turnOrder)
         if sock == playerSock[0]:
             queue_announcment(playerSock[1], "Opponent restarted game")
         if sock == playerSock[1]:  
@@ -100,9 +103,11 @@ def process_message(sock):
     elif decodedmess[0] == '9':
         print('hello')
         if sock == playerSock[0]:
-            queue_announcment(playerSock[1], "Opponent disconnected from game")
-            queue_announcment(playerSock[1], "You are considered player X.")
-            queue_announcment(playerSock[1], "Waiting for second player...")
+            #need to test this
+            if len(playerSock) == 2:
+                queue_announcment(playerSock[1], "Opponent disconnected from game")
+                queue_announcment(playerSock[1], "You are considered player X.")
+                queue_announcment(playerSock[1], "Waiting for second player...")
             wipeGameBoard()
             sel.unregister(playerSock[0])
             playerSock[0].close()
@@ -118,6 +123,7 @@ def process_message(sock):
             playerSock.pop(1)
             print(playerSock)
         
+#updates the serverside board with the proper character
 def update_serverside_board(turnNumber, character):
     global gameBoard
     if int(turnNumber) <= 3:
@@ -129,6 +135,7 @@ def update_serverside_board(turnNumber, character):
     else:
         print("Error: Bad turnNumber")
 
+#check to see if the board has reached a win condition
 def win_condtion():
     global gameBoard
     increment = 0
@@ -159,6 +166,7 @@ def win_condtion():
         elif gameBoard[0][2] == character and gameBoard[2][0] == character:
             return character
 
+    #Counts number of empty spaces
     emptyNumber = 0    
     for i in range(len(gameBoard)):
         for j in range(len(gameBoard[i])):
@@ -166,6 +174,7 @@ def win_condtion():
                 emptyNumber += 1
 
     #checks to see if all nine spaces have been filled
+    #allows checing for a draw
     if emptyNumber == 0:
         return '-'
     else:
@@ -192,6 +201,7 @@ def queue_winner(winner):
         messages.append((playerSock[0], message3))
         messages.append((playerSock[1], message3))
 
+#Proccess turn taken, sees if a win condition has been met, and and sends updates to client
 def process_turnOrder(turnNumber, socket):
     global turnOrder
     global playerSock
@@ -214,24 +224,24 @@ def process_turnOrder(turnNumber, socket):
         else:
             queue_winner(winner)
 
-#need to make this take in arguments
-
+#Main function when running server script
 def main():
+    #Default arguments
     host = '0.0.0.0'
-    port = 5022
+    port = 5023
 
-    if len(sys.argv[1:]) != 4:
-        print("Please run script with arguments for ip address and port")
-        print("EX: python3 server.py -i 0.0.0.0 -p 5022")
+    if len(sys.argv[1:]) != 2:
+        print("Please run script with arguments for port")
+        print("EX: python3 server.py -p 5022")
         exit()
-    elif not ('-p' in sys.argv[1:]) or not ('-i' in sys.argv[1:]):
-        print("Please run script with arguments for ip address and port")
-        print("EX: python3 server.py -i 0.0.0.0 -p 5022")
+    elif not ('-p' in sys.argv[1:]):
+        print("Please run script with arguments for port")
+        print("EX: python3 server.py -p 5022")
         exit()
     else:
-        host = sys.argv[sys.argv[1:].index('-i') + 2]
         port = sys.argv[sys.argv[1:].index('-p') + 2]
 
+    #creates socket and register
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.bind((host, int(port)))
     lsock.listen()
@@ -239,6 +249,7 @@ def main():
     lsock.settimeout(10)
     sel.register(lsock, selectors.EVENT_READ, data=None)
 
+    #main loop
     try:
         while True:
             events = sel.select(timeout=None)

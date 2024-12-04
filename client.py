@@ -9,22 +9,28 @@ import re
 import struct
 import time
 
+#Global Selector
 sel = selectors.DefaultSelector()
 
+#Global messages queued for sending
 messages = []
+
+#Global Client Gameboard
 gameBoard = [[' ',' ',' '], [' ',' ',' '], [' ',' ',' ']]
+
+#Glabal Game End Indicator
+#Should be 1 or 0
 gameEnd = 0
 
+#Indicates what user 
 isTurn = 0
 
 curSock = None
 
-#recv_data = ''
-
+#Attempts a connection to server
+#Registers sock and user input to selector
 def start_connection(host, port):
     server_addr = (host, port)
-    #logger.info("Started connection to" + str(server_addr))
-    #print("Started connection to" + str(server_addr))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     global curSock
     curSock = sock
@@ -50,29 +56,16 @@ def start_connection(host, port):
     sel.register(sock, events, data=sockData)
     sel.register(sys.stdin, selectors.EVENT_READ, data=inputData)
 
+#reads or writes data from server or user input
 def service_connection(key, mask):
     sock = key.fileobj
     data = key.data
     if mask & selectors.EVENT_READ:
         if data.type == 'input':
             service_user_input(sock)
-            #print('log: hello', file=sys.stdout)
             sys.stdout.flush()
         elif type(sock) is socket.socket:
             proccess_message(sock)
-            #recv_data = sock.recv(1024)  Should be ready to read
-            #if recv_data:
-                #proccess_message(recv_data)
-                #logger.info("received" + repr(recv_data) + "from connection")
-                #print("received" + repr(recv_data) + "from connection")
-                #pretty sure I don't need this line
-	        #data.recv_total += len(recv_data)
-        '''
-        if not recv_data or data.recv_total >= data.msg_total:
-            print("closing connection", data.connid)
-            sel.unregister(sock)
-            sock.close()
-        '''
     if mask & selectors.EVENT_WRITE:
         if not data.outb and messages:
             data.outb = messages.pop(0)
@@ -81,12 +74,7 @@ def service_connection(key, mask):
             sent = sock.send(data.outb)  # Should be ready to write
             data.outb = data.outb[sent:]
 
-#4 types of message will be sent by client including
-# - HeartBeat: 1
-# - Connection: 2
-# - Update: 3
-# - Disconnection: 4
-
+#Updates the Commandline UI after update
 def update_UI(turnOrder):
     global isTurn
     print('_________________________________')
@@ -121,16 +109,11 @@ def proccess_message(sock):
     msg_len = int.from_bytes(header[0:2], byteorder="big")
     message = sock.recv(msg_len)
     decodedmess = message.decode('utf-8').rsplit(" - ")
-    #print(decodedmess)
-    if decodedmess[0] == '0':
-        #print("heart beat recived")
-        pass
-    elif decodedmess[0] == '1':
+    if decodedmess[0] == '1':
         print(decodedmess[1])
     elif decodedmess[0] == '2':
         global isTurn 
         isTurn = int(decodedmess[1])
-        #print(isTurn)
         update_gameBoard(decodedmess[2])
         update_UI(str(decodedmess[1]))
     elif decodedmess[0] == '8':
@@ -155,29 +138,28 @@ def process_winner(outcome):
         print('_________________________________')
         print("Would you like to restart or quit? (A=Restart, B=Quit)")
 
-def sendHeartBeat():
-    #logger.info(
-    Heartb= b"0 - Heart Beat"
-    #logger(
-    #sent = sock.send(Heartb)
-    messages.append(Heartb)
-    #selectors.EVENT_WRITE = True
-
+#queues the turn made by user
 def queue_turn(turn):
     encode = b"5 - " + turn.encode('utf-8')
     message = struct.pack(">H", len(encode)) + encode
     messages.append(message)
 
+#queues a message saying user would like to restart game
+#Should only available after the conclusion of a game
 def queue_gameRestart():
     encode = b"6 - Game Restart"
     message = struct.pack(">H", len(encode)) + encode
     messages.append(message)
 
+#Sends a disconnection message to server
+#This does not queue message
+#Allows server to free up resources for next user
 def send_disconnection(sock):
     encode = b"9 - Disconnection"
     message = struct.pack(">H", len(encode)) + encode
     curSock.send(message)
 
+#checks to see if the user has overwritten an already written space
 def validInputCheck(turn):
     if turn == '1':
         if gameBoard[0][0] != ' ':
@@ -209,6 +191,7 @@ def validInputCheck(turn):
         
     return True
 
+#Checks to see if user has made a proper input
 def service_user_input(sock):
     line = sys.stdin.readline()
     global isTurn
@@ -247,8 +230,9 @@ logFilename = "./log/client_TicTacToeLog(" + time.asctime(time.gmtime()) + ").lo
 logging.basicConfig(filename=logFilename, level=logging.INFO)
 print('Created ' + logFilename)
 
+#Main function when running client script
 def main():
-
+    #checks correct arguments
     if len(sys.argv[1:]) != 4:
         print("Please run script with arguments for ip address and port")
         print("EX: python3 -i 0.0.0.0 -p 5022")
@@ -268,7 +252,6 @@ def main():
     #main loop
     try:
         while True:
-            #print(time.perf_counter())
             events = sel.select(timeout=1)
             if events:
                 for key, mask in events:
@@ -276,6 +259,7 @@ def main():
             if not sel.get_map():
                 break
     except KeyboardInterrupt:
+        #approriatly 
         global curSock
         print("Caught keyboard interrupt, exiting")
         send_disconnection(curSock)
