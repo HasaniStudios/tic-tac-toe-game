@@ -34,9 +34,8 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
     * Correctly allows player to enter A to restart game only after a game has been player.
   * Win Condition
     * Displays correct win or lose condition
-    *   
 
-**Communication Protocol**
+**Communication Protocol:**
 * Bytes 0-2
    * Length of incoming message
    * Reasoning: Allows reciever to take appropriate data out of reciever
@@ -70,7 +69,9 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
 
 **Retrospective:**
 
-This is my first true project working with socket programming and honestly was more fun than I expected. At the beginning of the project I expected to be a monumental task. It honestly was pretty straight foward and I didn't run into many detremental bugs when programming. When originally programming the project I did not account for a user interface like PyQt or Tkinter to be blocking. Both PyQt and Tkinter, the user interfaces I have the most experince with, both have their own control loops. This means after I wrote my own control loop if I were to convert it to have a proper user interface I'd need to convert my fully functional control loop to a user interface control loop. With an already functional program that thought of changing all my code was pretty daunting.
+This is my first true project working with socket programming and honestly it was more enjoyable than I expected. At the beginning of the project I expected it to be a monumental task. It honestly was pretty straight foward and I didn't run into many detremental bugs when programming. When originally programming the project I did not account for a user interface like PyQt or Tkinter to be blocking. Both PyQt and Tkinter, the user interfaces I have the most experince with, both have their own control loops. This means after I wrote my own control loop, if I were to convert it to have a proper user interface I'd need to convert my fully functional command-line control loop to a user interface control loop. With an already functional program that thought of changing all my code was pretty daunting.
+
+However, as previously stated implememnting the control loop of my game worked very well. By figuring out what data needed to be transported to each client and therefore sent to the server it was easy to implemement a different function for each type of recieved message and each type of message to send. 
 
 **Additional resources:**
 * [https://docs.python.org/3/]
