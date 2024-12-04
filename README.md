@@ -34,6 +34,18 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
     * Correctly allows player to enter A to restart game    
 
 **Communication Protocol**
+* Bytes 0-2
+   * Length of incoming message
+   * Reasoning: Allows reciever to take appropriate data out of reciever
+* Byte 3
+   * Type of message
+   * Reasoning: Allows client and server to
+* Byte 4-6
+   * Seperation bits
+   * Reasoning: Allows reciever to parse between header and data
+* Byte 7:
+   * Data needed for message type
+   * Reasoning: Allows for multi-length messages
 
 **Files:**
 * server.py
