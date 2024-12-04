@@ -18,6 +18,7 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
   * Win Conidion
     * Able to detect all 8 different win conditions of tic tac toe.
     * Able to detect a draw condition.
+    * Lets clients know a win condition has been reached.
   * Announcment
     * Can queue an announcment to clients.
   * Parses   
@@ -44,10 +45,12 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
     * Correctly only allows user to pick between 0-9 inputs on their turn.
     * Correctly allows player to enter B to quit game.
     * Correctly allows player to enter A to restart game only after a game has been player.
+    * Tells player if they made an incorrect input
   * Turn based gameplay
     * Client is able to determine if it is their turn and allows them to make a move.
   * Win Condition
     * Displays correct win or lose condition
+    * Ask player if they would like
 
 **Communication Protocol:**
 * Bytes 0-2
