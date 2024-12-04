@@ -16,8 +16,13 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets.
   * server python script
 * client.py
   * client python script
-* client.py
-  * client python script
+* SOW.md
+  * statement of work markdown
+* Requirements.txt
+  * libraries required to run scripts
+  * should be blank since no external libarries are used
+* README.md
+  * information about game
 
 **Technologies used:**
 * Python
