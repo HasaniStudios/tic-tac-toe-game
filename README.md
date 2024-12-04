@@ -50,7 +50,13 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
    * Reasoning: Allows for multi-length messages
 
 **Server-side Messages:**
-
+* ID:1 - announcment
+  * sends a message that should be directly to displayed to the user by there client. 
+* ID:2 - update
+  * sends a client the updated game board and if their turn is next.
+* ID:8 - winner
+  * sends the result of the game to the client
+  
 **Client-side Messages:**
 
 **Files:**
