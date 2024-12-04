@@ -77,5 +77,7 @@ This is my first true project working with socket programming and honestly it wa
 
 However, as previously stated implememnting the control loop of my game worked very well. By figuring out what data needed to be transported to each client and therefore sent to the server it was easy to implemement a different function for each type of recieved message and each type of message to send. 
 
+I originally had a heart beat functionality that would let the server and client know that each other are still there. This wasn't such a bad idea, but I ended up cutting the functionality out since it would complicate the server-client messaging system. This would however detect unwanted disconnections by 
+
 **Additional resources:**
 * [https://docs.python.org/3/]
