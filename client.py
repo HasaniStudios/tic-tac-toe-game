@@ -7,7 +7,6 @@ import os
 import logging
 import re
 import struct
-import time
 
 #Global Selector
 sel = selectors.DefaultSelector()
@@ -25,6 +24,7 @@ gameEnd = 0
 #Indicates what user 
 isTurn = 0
 
+#Global Socket Value
 curSock = None
 
 #Attempts a connection to server
@@ -37,10 +37,10 @@ def start_connection(host, port):
     sock.settimeout(10)
     try:
         sock.connect(server_addr)
-        logger.info("Started connection to " + str(server_addr))
+        logger.info(time.strftime("%a,%d-%b-%Y-%H:%M:%S", time.gmtime()) + ":Started connection to " + str(server_addr))
         print("Started connection to " + str(server_addr))
     except:
-        logger.info("This client was unable to connect to " + str(server_addr[0]) + str(server_addr[1]))
+        logger.info(time.strftime("%a,%d-%b-%Y-%H:%M:%S", time.gmtime()) + ":This client was unable to connect to " + str(server_addr[0]) + str(server_addr[1]))
         print("This client was unable to connect to " + str(server_addr[0]) + str(server_addr[1]))
         exit()
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
@@ -63,14 +63,13 @@ def service_connection(key, mask):
     if mask & selectors.EVENT_READ:
         if data.type == 'input':
             service_user_input(sock)
-            sys.stdout.flush()
         elif type(sock) is socket.socket:
             proccess_message(sock)
     if mask & selectors.EVENT_WRITE:
         if not data.outb and messages:
             data.outb = messages.pop(0)
         if data.outb:
-            logger.info("sending" + repr(data.outb) + "to connection to server")
+            logger.info(time.strftime("%a,%d-%b-%Y-%H:%M:%S", time.gmtime()) + ":sending" + repr(data.outb) + "to connection to server")
             sent = sock.send(data.outb)  # Should be ready to write
             data.outb = data.outb[sent:]
 
@@ -211,8 +210,8 @@ def service_user_input(sock):
             quit()
         else: #should probably check that 
             if isTurn == 1 and line[0] != 'A':
-                print('User input: {}'.format(line))
-                if validInputCheck(line[0]): 
+                if validInputCheck(line[0]):
+                    print('User input: {}'.format(line)) 
                     queue_turn(line[0])
                 else:
                     print("Invalid Input, choose a blank space")
@@ -226,8 +225,9 @@ if not os.path.isdir('log'):
 
 #set up logger
 logger = logging.getLogger(__name__)
-logFilename = "./log/client_TicTacToeLog(" + time.asctime(time.gmtime()) + ").log"
-logging.basicConfig(filename=logFilename, level=logging.INFO)
+FORMAT = '%(asctime)s - %(levelname)s : %(message)s'
+logFilename = "./log/client_TicTacToeLog(" + time.strftime("%a,%d-%b-%Y-%H:%M:%S", time.gmtime()) + ").log"
+logging.basicConfig(filename=logFilename, level=logging.INFO, format=FORMAT)
 print('Created ' + logFilename)
 
 #Main function when running client script

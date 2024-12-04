@@ -5,6 +5,9 @@ import types
 import json
 import struct
 import random
+import time
+import logging
+import os
 
 sel = selectors.DefaultSelector()
 playerSock = []
@@ -19,16 +22,19 @@ gameBoard = [[' ',' ',' '], [' ',' ',' '], [' ',' ',' ']]
 #accepts incoming connection requests
 def accept_wrapper(sock):
     conn, addr = sock.accept()
-    print("accepted connection from", addr, "this user will be considered player 1")
     conn.settimeout(10)
     data = types.SimpleNamespace(addr=addr, inb=b"", outb=b"")
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
     sel.register(conn, events, data=data)
     playerSock.append(conn)
     if len(playerSock) == 1:
+        print("accepted connection from", addr, "this user will be considered player X")
+        logger.info("accepted connection from" + str(addr) + "this user will be considered player X")
         queue_announcment(conn, "You are considered player X.")
         queue_announcment(conn, "Waiting for second player...")
     elif len(playerSock) == 2:
+        print("accepted connection from", addr, "this user will be considered player O")
+        logger.info("accepted connection from" + str(addr) + "this user will be considered player O")
         queue_announcment(conn, "You are considered player O.")
         queue_announcment(playerSock[0], "Second player has connected.")
         global turnOrder
@@ -50,7 +56,8 @@ def service_connection(key, mask):
         if not data.outb and messages:
             data.outb = messages.pop(0)
         if data.outb:
-            print("sent", repr(data.outb[1]), "to", data.addr)
+            logger.info("sent" + str(repr(data.outb[1])) + "to" + str(data.addr))
+            #print("sent", repr(data.outb[1]), "to", data.addr)
             sent = data.outb[0].send(data.outb[1])  # Should be ready to write
             data.outb = ''
 
@@ -93,7 +100,6 @@ def process_message(sock):
             queue_announcment(playerSock[1], "Opponent restarted game")
         if sock == playerSock[1]:  
             queue_announcment(playerSock[0], "Opponent restarted game")
-        print("test: " + str(turnOrder))
         if turnOrder == 1:
             queue_update(playerSock[0], "1")
             queue_update(playerSock[1], "0")
@@ -101,9 +107,10 @@ def process_message(sock):
             queue_update(playerSock[0], "0")
             queue_update(playerSock[1], "1")
     elif decodedmess[0] == '9':
-        print('hello')
         if sock == playerSock[0]:
             #need to test this
+            print("player X has disconnected from the game")
+            logger.info("player X has disconnected from the game")
             if len(playerSock) == 2:
                 queue_announcment(playerSock[1], "Opponent disconnected from game")
                 queue_announcment(playerSock[1], "You are considered player X.")
@@ -112,8 +119,9 @@ def process_message(sock):
             sel.unregister(playerSock[0])
             playerSock[0].close()
             playerSock.pop(0)
-            print(playerSock)
-        elif sock == playerSock[1]:  
+        elif sock == playerSock[1]:
+            print("player O has disconnected from the game")
+            logger.info("player O has disconnected from the game")  
             queue_announcment(playerSock[0], "Opponent disconnected from game")
             queue_announcment(playerSock[0], "You are considered player X.")
             queue_announcment(playerSock[0], "Waiting for second player...")
@@ -121,7 +129,6 @@ def process_message(sock):
             sel.unregister(playerSock[1])
             playerSock[1].close()
             playerSock.pop(1)
-            print(playerSock)
         
 #updates the serverside board with the proper character
 def update_serverside_board(turnNumber, character):
@@ -134,6 +141,8 @@ def update_serverside_board(turnNumber, character):
         gameBoard[2][int(turnNumber)-7] = character
     else:
         print("Error: Bad turnNumber")
+        logger.error("Error: Bad value for a potential turn detected")
+        quit()
 
 #check to see if the board has reached a win condition
 def win_condtion():
@@ -180,6 +189,7 @@ def win_condtion():
     else:
         return ' '
 
+#Queues winner message
 def queue_winner(winner):
     global playerSock
     encode1 = b"8 - 1"
@@ -224,6 +234,15 @@ def process_turnOrder(turnNumber, socket):
         else:
             queue_winner(winner)
 
+if not os.path.isdir('log'):
+    os.mkdir('log')
+
+logger = logging.getLogger(__name__)
+logFilename = "./log/server_TicTacToeLog(" + time.strftime("%a,%d-%b-%Y-%H:%M:%S", time.gmtime()) + ").log"
+FORMAT = '%(asctime)s - %(levelname)s : %(message)s'
+logging.basicConfig(filename=logFilename, level=logging.INFO,  format=FORMAT)
+print('Created ' + logFilename)
+
 #Main function when running server script
 def main():
     #Default arguments
@@ -245,7 +264,7 @@ def main():
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.bind((host, int(port)))
     lsock.listen()
-    print("This server is listening for players to connect", (host, port))
+    print("This server is listening for players to connect on host:", host, "and Port:", port)
     lsock.settimeout(10)
     sel.register(lsock, selectors.EVENT_READ, data=None)
 
@@ -262,9 +281,19 @@ def main():
         print("caught keyboard interrupt, exiting")
         sel.close()
         lsock.close()
+        #release logger resources
+        handlers = logger.handlers[:]
+        for handler in handlers:
+            logger.removeHandler(handler)
+            handler.close()
     finally:
         sel.close()
         lsock.close()
+        #release logger resources
+        handlers = logger.handlers[:]
+        for handler in handlers:
+            logger.removeHandler(handler)
+            handler.close()
 
 #when script is run directly: call main
 if __name__ == '__main__':
