@@ -13,14 +13,14 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
 
 **Functionality:**
 * server.py
-  * Multiple Connection
+  * Multiple Connections
     * Correcly drops connections greater than 2.
   * Win Conidion
     * Able to detect all 8 different win conditions of tic tac toe.
     * Able to detect a draw condition.
   * Announcment
     * Can queue an announcment to clients.
-  * Prases Turn
+  * Parses Turn
     * Recieves turn from player and sends the correct update to each player.       
 * Client.py
   * Able to accept up to two connections
