@@ -21,7 +21,8 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
     * Lets clients know a win condition has been reached.
   * Announcment
     * Can queue an announcment to clients.
-  * Parses   
+  * Parses messags
+    * parses messages recived by clinet by socket and message type or ID.    
   * Parses Turn
     * Recieves turn from player and sends the correct update to each player.
   * Maintains list of clients
