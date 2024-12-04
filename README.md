@@ -11,7 +11,7 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
 5. **Play the game:** Players take turns entering their moves. The first player to get three in a row wins!
     * Game will prompt you with the allowed command line inputs
 
-**Functionality**
+**Functionality:**
 * server.py
   * Multiple Connection
     * Correcly drops connections greater than 2.
@@ -67,6 +67,10 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
 * Python
 * Sockets
 * Selector
+
+**Retrospective:**
+
+This is my first true project working with socket programming and honestly was more fun than I expected. At the beginning of the project I expected to be a monumental task. It honestly was pretty straight foward and I didn't run into many detremental bugs when programming. When originally programming the project I did not account for a user interface like PyQt or Tkinter to be blocking. Both PyQt and Tkinter, the user interfaces I have the most experince with, both have their own control loops. This means after I wrote my own control loop if I were to convert it to have a proper user interface I'd need to convert my fully functional control loop to a user interface control loop. With an already functional program that thought of changing all my code was pretty daunting.
 
 **Additional resources:**
 * [https://docs.python.org/3/]
