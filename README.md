@@ -36,7 +36,7 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
     * First player to connect is considered player X
     * Second player to connect is considered player O
     * Actualy code does not use X and O to differentiate players and instead users the location in an array.
-* Client.py
+* client.py
   * Able to accept up to two connections
     * Correcly drops connection greater than 2.
   * User Interface
