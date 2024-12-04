@@ -49,6 +49,10 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
    * Data needed for message type
    * Reasoning: Allows for multi-length messages
 
+**Server-side Messages:**
+
+**Client-side Messages:**
+
 **Files:**
 * server.py
   * server python script
