@@ -1,4 +1,4 @@
-# Tic-Tac-Toe Game Example
+# Isacc Reaves Tic-Tac-Toe Game 
 
 This is a simple Tic-Tac-Toe game implemented using Python and sockets.
 
@@ -6,6 +6,18 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets.
 1. **Start the server:** Run the `server.py` script with '-p PORT' arguments.
 2. **Connect clients:** Run the `client.py` script on two different machines or terminals with '-i SERVER_IP/DNS -p PORT' arguments.
 3. **Play the game:** Players take turns entering their moves. The first player to get three in a row wins!
+  *Game will prompt you with the allowed command line inputs
+
+**Functionality**
+
+
+**Files:**
+* server.py
+  * server python script
+* client.py
+  * client python script
+* client.py
+  * client python script
 
 **Technologies used:**
 * Python
