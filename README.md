@@ -40,7 +40,7 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
    * Length of incoming message
    * Reasoning: Allows reciever to take appropriate data out of reciever
 * Byte 3
-   * Type of message
+   * Type of message or message ID
    * Reasoning: Allows client and server to
 * Byte 4-6
    * Seperation bits
