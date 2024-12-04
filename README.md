@@ -32,6 +32,9 @@ This is a simple Tic-Tac-Toe game implemented using Python and sockets by Isaac 
     * Correctly only allows user to pick between 0-9 inputs on their turn.
     * Correctly allows player to enter B to quit game.
     * Correctly allows player to enter A to restart game only after a game has been player.
+  * Win Condition
+    * Displays correct win or lose condition
+    *   
 
 **Communication Protocol**
 * Bytes 0-2
